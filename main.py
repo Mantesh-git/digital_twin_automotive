@@ -2,8 +2,6 @@ import sys
 import os
 import logging
 import asyncio
-import timeit
-import tracemalloc
 from collections import Counter
 
 from config import LOG_FILE_PATH, LOG_FORMAT, LOG_DATE_FORMAT, LOG_LEVEL
@@ -128,7 +126,6 @@ def main():
     print(f"  Threads used             : 2")
     print(f"  Stations polled async    : {len(results)}")
     print("-" * 50)
-    print("\nRun dashboard: streamlit run dashboard/app.py\n")
     logger.info("Pipeline completed successfully")
 
 
