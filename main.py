@@ -3,7 +3,6 @@ import os
 import logging
 import asyncio
 from collections import Counter
-
 from config import LOG_FILE_PATH, LOG_FORMAT, LOG_DATE_FORMAT, LOG_LEVEL
 from database import DatabaseManager, DatabaseError
 from processor import read_and_process, detect_anomalies, save_files_with_threads, poll_all_stations
