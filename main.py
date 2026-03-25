@@ -1,5 +1,4 @@
 import sys
-import os
 import logging
 import asyncio
 from collections import Counter
@@ -9,7 +8,6 @@ from processor import read_and_process, detect_anomalies, save_files_with_thread
 from monitoring import measure_memory, compare_approaches, profile_function
 
 # Setup logging — writes to both terminal and log file
-os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL.upper(), logging.DEBUG),
     format=LOG_FORMAT,
@@ -78,11 +76,6 @@ def main():
     for row in db.get_daily_production()[:5]:
         print(f"    {str(row['production_date']):12} - "
               f"readings: {row['total_readings']} - failures: {row['daily_failures']}")
-
-    print("\n  Query 4 - Rolling Average Torque (Window Function):")
-    for row in db.get_rolling_avg_torque()[:5]:
-        print(f"    {row['station_id']:15} - torque: {row['torque_nm']} "
-              f"- rolling avg: {row['rolling_avg_torque']}")
 
     # Step 7 - Performance comparison O(n2) vs O(n)
     print("\nStep 7 - Performance comparison...")
