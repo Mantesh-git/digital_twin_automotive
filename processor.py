@@ -47,23 +47,23 @@ def read_and_process():
         for row in csv.DictReader(f):
             udi = int(row["UDI"])
             processed.append({
-                "udi":              udi,
-                "product_id":       row["Product ID"],
-                "product_type":     row["Type"],
-                "air_temp_k":       round(float(row["Air temperature [K]"]), 2),
-                "process_temp_k":   round(float(row["Process temperature [K]"]), 2),
+                "udi": udi,
+                "product_id": row["Product ID"],
+                "product_type": row["Type"],
+                "air_temp_k": round(float(row["Air temperature [K]"]), 2),
+                "process_temp_k": round(float(row["Process temperature [K]"]), 2),
                 "rotational_speed": int(row["Rotational speed [rpm]"]),
-                "torque_nm":        round(float(row["Torque [Nm]"]), 2),
-                "tool_wear_min":    int(row["Tool wear [min]"]),
-                "machine_failure":  int(row["Machine failure"]),
-                "TWF":              int(row["TWF"]),
-                "HDF":              int(row["HDF"]),
-                "PWF":              int(row["PWF"]),
-                "OSF":              int(row["OSF"]),
-                "RNF":              int(row["RNF"]),
-                "station_id":       get_station(udi),
-                "shift":            get_shift(udi),
-                "timestamp":        get_timestamp(udi),
+                "torque_nm": round(float(row["Torque [Nm]"]), 2),
+                "tool_wear_min": int(row["Tool wear [min]"]),
+                "machine_failure": int(row["Machine failure"]),
+                "TWF": int(row["TWF"]),
+                "HDF": int(row["HDF"]),
+                "PWF": int(row["PWF"]),
+                "OSF": int(row["OSF"]),
+                "RNF": int(row["RNF"]),
+                "station_id": get_station(udi),
+                "shift": get_shift(udi),
+                "timestamp": get_timestamp(udi),
             })
 
     logger.info("Processed %d rows from CSV", len(processed))
@@ -79,14 +79,14 @@ def detect_anomalies(readings):
         for flag in ["TWF", "HDF", "PWF", "OSF", "RNF"]:
             if r.get(flag) == 1:
                 anomalies.append({
-                    "udi":             r["udi"],
-                    "station_id":      r["station_id"],
-                    "failure_type":    flag,
-                    "failure_desc":    FAILURE_TYPES[flag],
-                    "sensor_name":     flag,
-                    "actual_value":    1.0,
+                    "udi": r["udi"],
+                    "station_id": r["station_id"],
+                    "failure_type": flag,
+                    "failure_desc": FAILURE_TYPES[flag],
+                    "sensor_name": flag,
+                    "actual_value": 1.0,
                     "threshold_value": 0.0,
-                    "severity":        FAILURE_SEVERITY[flag],
+                    "severity": FAILURE_SEVERITY[flag],
                 })
 
         # Check sensor values against thresholds
@@ -100,14 +100,14 @@ def detect_anomalies(readings):
             else:
                 continue
             anomalies.append({
-                "udi":             r["udi"],
-                "station_id":      r["station_id"],
-                "failure_type":    "THRESHOLD",
-                "failure_desc":    f"{sensor} exceeded {sev} threshold",
-                "sensor_name":     sensor,
-                "actual_value":    val,
+                "udi": r["udi"],
+                "station_id": r["station_id"],
+                "failure_type": "THRESHOLD",
+                "failure_desc": f"{sensor} exceeded {sev} threshold",
+                "sensor_name": sensor,
+                "actual_value": val,
                 "threshold_value": t["critical"] if sev == "HIGH" else t["warning"],
-                "severity":        sev,
+                "severity": sev,
             })
 
     logger.info("Detected %d anomalies", len(anomalies))
@@ -146,8 +146,8 @@ async def poll_station(station_id):
     await asyncio.sleep(0.05)
     return {
         "station_id": station_id,
-        "status":     "ONLINE",
-        "polled_at":  datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "ONLINE",
+        "polled_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
