@@ -155,33 +155,3 @@ async def poll_all_stations():
     # All 6 stations polled at the same time — non blocking
     tasks = [poll_station(s) for s in STATIONS]
     return await asyncio.gather(*tasks)
-
-
-if __name__ == "__main__":
-    # Setup basic logging for testing
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s | %(levelname)s | %(message)s")
-
-    print("Test 1 - Reading and processing CSV...")
-    data = read_and_process()
-    print(f"  Rows processed: {len(data)}")
-
-    counts = Counter(r["station_id"] for r in data)
-    print("  Rows per station:")
-    for s, c in sorted(counts.items()):
-        print(f"    {s:20} - {c}")
-
-    print("\nTest 2 - Detecting anomalies...")
-    anomalies = detect_anomalies(data)
-    print(f"  Total anomalies: {len(anomalies)}")
-
-    print("\nTest 3 - Saving files using 2 threads...")
-    save_files_with_threads(data)
-    print("  Files saved")
-
-    print("\nTest 4 - Async station polling...")
-    results = asyncio.run(poll_all_stations())
-    for r in results:
-        print(f"  {r['station_id']:20} - {r['status']}")
-
-    print("\nAll tests passed")
