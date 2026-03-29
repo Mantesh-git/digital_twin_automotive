@@ -102,10 +102,10 @@ class DatabaseManager:
                 sr.station_id,
                 st.station_name,
                 st.robot_model,
-                COUNT(*)                              AS total_readings,
-                SUM(sr.machine_failure)               AS total_failures,
-                ROUND(AVG(sr.torque_nm), 2)           AS avg_torque,
-                ROUND(AVG(sr.tool_wear_min), 2)       AS avg_tool_wear,
+                COUNT(*) AS total_readings,
+                SUM(sr.machine_failure) AS total_failures,
+                ROUND(AVG(sr.torque_nm), 2) AS avg_torque,
+                ROUND(AVG(sr.tool_wear_min), 2) AS avg_tool_wear,
                 ROUND(AVG(sr.air_temp_k - 273.15), 2) AS avg_temp_celsius
             FROM sensor_readings sr
             INNER JOIN stations st ON sr.station_id = st.station_id
@@ -121,7 +121,7 @@ class DatabaseManager:
         query = """
             WITH stats AS (
                 SELECT station_id,
-                       COUNT(*)             AS total,
+                       COUNT(*) AS total,
                        SUM(machine_failure) AS failures
                 FROM sensor_readings
                 GROUP BY station_id
@@ -163,9 +163,9 @@ class DatabaseManager:
     # Query 4 — GROUP BY date with HAVING
     def get_daily_production(self):
         query = """
-            SELECT DATE(timestamp)          AS production_date,
-                   COUNT(*)                 AS total_readings,
-                   SUM(machine_failure)     AS daily_failures
+            SELECT DATE(timestamp) AS production_date,
+                   COUNT(*) AS total_readings,
+                   SUM(machine_failure) AS daily_failures
             FROM sensor_readings
             GROUP BY DATE(timestamp)
             HAVING total_readings > 50
@@ -196,25 +196,3 @@ class DatabaseManager:
         except Exception as e:
             logger.error("Health check failed: %s", e)
             return False
-
-
-if __name__ == "__main__":
-    db = DatabaseManager()
-
-    try:
-        conn = db.get_connection()
-        conn.close()
-        print("Test 1 - Connection: PASSED")
-    except DatabaseError as e:
-        print(f"Test 1 - Connection: FAILED - {e}")
-
-    result = db.check_health()
-    print(f"Test 2 - Health Check: {'PASSED' if result else 'FAILED'}")
-
-    with db.get_cursor() as cursor:
-        cursor.execute("SELECT station_id, station_name FROM stations ORDER BY sequence_no")
-        stations = cursor.fetchall()
-
-    print(f"Test 3 - Found {len(stations)} stations:")
-    for s in stations:
-        print(f"  {s['station_id']:15} - {s['station_name']}")
