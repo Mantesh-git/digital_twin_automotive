@@ -2,6 +2,7 @@ import sys
 import logging
 import asyncio
 from collections import Counter
+from multiprocessing import Pool
 from config import LOG_FILE_PATH, LOG_FORMAT, LOG_DATE_FORMAT, LOG_LEVEL
 from database import DatabaseManager, DatabaseError
 from processor import read_and_process, detect_anomalies, save_files_with_threads, poll_all_stations
@@ -18,6 +19,11 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+# Multiprocessing requires top-level functions — cannot be inside main()
+def process_chunk(chunk):
+    return detect_anomalies(chunk)
 
 
 def main():
@@ -100,6 +106,14 @@ def main():
         runs=3
     )
 
+    # Step 7b - Multiprocessing — split anomaly detection across 2 processes
+    print("\nStep 7b - Multiprocessing anomaly detection...")
+    chunks = [data[:5000], data[5000:]]
+    with Pool(2) as pool:
+        mp_results = pool.map(process_chunk, chunks)
+    total_mp_anomalies = sum(len(r) for r in mp_results)
+    print(f"Multiprocessing detected {total_mp_anomalies} anomalies using 2 processes")
+
     # Step 8 - Profile the anomaly detection function using cProfile
     print("\nStep 8 - Profiling anomaly detection...")
     profile_function(detect_anomalies, data[:500])
@@ -116,6 +130,7 @@ def main():
     print(f"  Sensor readings inserted : {len(data)}")
     print(f"  Anomalies detected       : {len(anomalies)}")
     print(f"  Threads used             : 2")
+    print(f"  Processes used           : 2")
     print(f"  Stations polled async    : {len(results)}")
     print("-" * 50)
     logger.info("Pipeline completed successfully")
